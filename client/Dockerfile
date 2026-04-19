@@ -1,12 +1,23 @@
 FROM node:14-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 
 FROM node:14-alpine AS builder
 WORKDIR /app
+
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_NAME
+ARG API_URL
+ARG SITE_NAME
+
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_SITE_NAME=${NEXT_PUBLIC_SITE_NAME}
+ENV API_URL=${API_URL}
+ENV SITE_NAME=${SITE_NAME}
+
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 RUN npm run build
 

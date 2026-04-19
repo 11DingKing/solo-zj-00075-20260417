@@ -36,6 +36,11 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8080/api}
+        - NEXT_PUBLIC_SITE_NAME=${SITE_NAME:-localhost:3000}
+        - API_URL=${API_URL:-http://localhost:8080/api}
+        - SITE_NAME=${SITE_NAME:-localhost:3000}
     container_name: stackoverflow-client
     restart: unless-stopped
     ports:
@@ -45,6 +50,8 @@ services:
       - PORT=3000
       - SITE_NAME=${SITE_NAME:-localhost:3000}
       - API_URL=${API_URL:-http://localhost:8080/api}
+      - NEXT_PUBLIC_SITE_NAME=${SITE_NAME:-localhost:3000}
+      - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8080/api}
     depends_on:
       - server
     networks:
