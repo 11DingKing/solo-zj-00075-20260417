@@ -21,7 +21,7 @@ const {
   answerValidate,
   createAnswer,
   removeAnswer,
-  listByUser
+  listAnswersByUser
 } = require('./controllers/answers');
 const { listPopulerTags, searchTags, listTags } = require('./controllers/tags');
 const { upvote, downvote, unvote } = require('./controllers/votes');
@@ -53,7 +53,7 @@ router.get('/question/user/:username', listByUser);
 router.delete('/question/:question', [requireAuth, questionAuth], removeQuestion);
 
 //answers
-router.get('/answer/user/:username', listByUser);
+router.get('/answer/user/:username', listAnswersByUser);
 
 //tags
 router.get('/tags/populertags', listPopulerTags);

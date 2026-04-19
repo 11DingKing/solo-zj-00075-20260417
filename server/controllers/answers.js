@@ -2,21 +2,21 @@ const { body, validationResult } = require('express-validator');
 const Question = require('../models/question');
 const User = require('../models/user');
 
-exports.listByUser = async (req, res, next) => {
+exports.listAnswersByUser = async (req, res, next) => {
   try {
     const { username } = req.params;
     const { sortType = '-created' } = req.body;
     const author = await User.findOne({ username });
-    
+
     if (!author) {
       return res.status(404).json({ message: 'User not found.' });
     }
-    
+
     const questions = await Question.find({ 'answers.author': author.id }).sort(sortType);
-    
+
     const userAnswers = [];
-    questions.forEach(question => {
-      question.answers.forEach(answer => {
+    questions.forEach((question) => {
+      question.answers.forEach((answer) => {
         if (answer.author && answer.author.id === author.id) {
           userAnswers.push({
             id: answer.id,
@@ -29,7 +29,7 @@ exports.listByUser = async (req, res, next) => {
         }
       });
     });
-    
+
     userAnswers.sort((a, b) => {
       if (sortType === '-created') {
         return new Date(b.created) - new Date(a.created);
@@ -42,7 +42,7 @@ exports.listByUser = async (req, res, next) => {
       }
       return 0;
     });
-    
+
     res.json(userAnswers.slice(0, 10));
   } catch (error) {
     next(error);
