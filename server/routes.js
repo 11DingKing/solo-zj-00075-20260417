@@ -20,7 +20,8 @@ const {
   loadAnswers,
   answerValidate,
   createAnswer,
-  removeAnswer
+  removeAnswer,
+  listByUser
 } = require('./controllers/answers');
 const { listPopulerTags, searchTags, listTags } = require('./controllers/tags');
 const { upvote, downvote, unvote } = require('./controllers/votes');
@@ -50,6 +51,9 @@ router.get('/question', listQuestions);
 router.get('/questions/:tags', listByTags);
 router.get('/question/user/:username', listByUser);
 router.delete('/question/:question', [requireAuth, questionAuth], removeQuestion);
+
+//answers
+router.get('/answer/user/:username', listByUser);
 
 //tags
 router.get('/tags/populertags', listPopulerTags);

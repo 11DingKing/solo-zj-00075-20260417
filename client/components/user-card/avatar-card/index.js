@@ -45,16 +45,32 @@ const UserAvatar = ({ username }) => {
             <Spinner />
           </div>
         ) : (
-          <div className={styles.created}>
-            <p>
-              Created:{' '}
-              <span>
-                {formatDistanceToNowStrict(new Date(userInfo.created), {
-                  addSuffix: true
-                })}
-              </span>
-            </p>
-          </div>
+          <>
+            <div className={styles.stats}>
+              <div className={styles.statItem}>
+                <span className={styles.statValue}>
+                  {userInfo.questionCount || 0}
+                </span>
+                <span className={styles.statLabel}>Questions</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statValue}>
+                  {userInfo.answerCount || 0}
+                </span>
+                <span className={styles.statLabel}>Answers</span>
+              </div>
+            </div>
+            <div className={styles.created}>
+              <p>
+                Created:{' '}
+                <span>
+                  {formatDistanceToNowStrict(new Date(userInfo.created), {
+                    addSuffix: true
+                  })}
+                </span>
+              </p>
+            </div>
+          </>
         )}
       </div>
     </div>

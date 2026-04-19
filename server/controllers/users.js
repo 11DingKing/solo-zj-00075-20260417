@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Question = require('../models/question');
 const jwtDecode = require('jwt-decode');
 const { body, validationResult } = require('express-validator');
 
@@ -132,8 +133,31 @@ exports.search = async (req, res, next) => {
 
 exports.find = async (req, res, next) => {
   try {
-    const users = await User.findOne({ username: req.params.username });
-    res.json(users);
+    const user = await User.findOne({ username: req.params.username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const questionCount = await Question.countDocuments({ author: user.id });
+
+    const questionsWithAnswers = await Question.find({ 'answers.author': user.id });
+    let answerCount = 0;
+    questionsWithAnswers.forEach((question) => {
+      question.answers.forEach((answer) => {
+        if (answer.author && answer.author.id === user.id) {
+          answerCount++;
+        }
+      });
+    });
+
+    const userWithStats = {
+      ...user.toJSON(),
+      questionCount,
+      answerCount
+    };
+
+    res.json(userWithStats);
   } catch (error) {
     next(error);
   }

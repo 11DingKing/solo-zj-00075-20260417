@@ -1,4 +1,53 @@
 const { body, validationResult } = require('express-validator');
+const Question = require('../models/question');
+const User = require('../models/user');
+
+exports.listByUser = async (req, res, next) => {
+  try {
+    const { username } = req.params;
+    const { sortType = '-created' } = req.body;
+    const author = await User.findOne({ username });
+    
+    if (!author) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    
+    const questions = await Question.find({ 'answers.author': author.id }).sort(sortType);
+    
+    const userAnswers = [];
+    questions.forEach(question => {
+      question.answers.forEach(answer => {
+        if (answer.author && answer.author.id === author.id) {
+          userAnswers.push({
+            id: answer.id,
+            text: answer.text,
+            score: answer.score,
+            created: answer.created,
+            questionId: question.id,
+            questionTitle: question.title
+          });
+        }
+      });
+    });
+    
+    userAnswers.sort((a, b) => {
+      if (sortType === '-created') {
+        return new Date(b.created) - new Date(a.created);
+      } else if (sortType === 'created') {
+        return new Date(a.created) - new Date(b.created);
+      } else if (sortType === '-score') {
+        return b.score - a.score;
+      } else if (sortType === 'score') {
+        return a.score - b.score;
+      }
+      return 0;
+    });
+    
+    res.json(userAnswers.slice(0, 10));
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.loadAnswers = async (req, res, next, id) => {
   try {

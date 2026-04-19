@@ -13,13 +13,26 @@ import { Spinner } from '../../components/icons'
 const UserDetail = ({ username }) => {
   const [posts, setPosts] = useState(null)
   const [postType, setPostType] = useState('Questions')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const { data } = await publicFetch.get(`/question/user/${username}`)
-      setPosts(data)
+    const fetchPosts = async () => {
+      setLoading(true)
+      try {
+        const endpoint =
+          postType === 'Questions'
+            ? `/question/user/${username}`
+            : `/answer/user/${username}`
+        const { data } = await publicFetch.get(endpoint)
+        setPosts(data)
+      } catch (error) {
+        console.error('Error fetching posts:', error)
+        setPosts([])
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchQuestions()
+    fetchPosts()
   }, [postType, username])
 
   return (
@@ -31,13 +44,13 @@ const UserDetail = ({ username }) => {
       <UserCard>
         <AvatarCard username={username} />
         <PostList postType={postType} setPostType={setPostType}>
-          {!posts && (
+          {loading && (
             <div className="loading">
               <Spinner />
             </div>
           )}
 
-          {posts?.map(({ id, title, score, created }) => (
+          {!loading && posts && postType === 'Questions' && posts.map(({ id, title, score, created }) => (
             <PostItem
               key={id}
               title={title}
@@ -47,9 +60,23 @@ const UserDetail = ({ username }) => {
             />
           ))}
 
-          {posts?.length == 0 && (
+          {!loading && posts && postType === 'Answers' && posts.map(({ id, questionTitle, score, created, questionId, text }) => (
+            <PostItem
+              key={id}
+              type="answer"
+              questionTitle={questionTitle}
+              vote={score}
+              created={created}
+              questionId={questionId}
+              text={text}
+            />
+          ))}
+
+          {!loading && posts?.length == 0 && (
             <p className="not-found-questions">
-              Don&apos;t have any questions yet.
+              {postType === 'Questions'
+                ? `Don't have any questions yet.`
+                : `Don't have any answers yet.`}
             </p>
           )}
         </PostList>
